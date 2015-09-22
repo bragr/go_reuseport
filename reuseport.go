@@ -17,8 +17,6 @@ import (
 )
 
 const (
-	tcp4                  = 52 // "4"
-	tcp6                  = 54 // "6"
 	unsupportedProtoError = "Only tcp4 and tcp6 are supported"
 	filePrefix            = "port."
 )
@@ -26,38 +24,49 @@ const (
 // getSockaddr parses protocol and address and returns implementor syscall.Sockaddr: syscall.SockaddrInet4 or syscall.SockaddrInet6.
 func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error) {
 	var (
-		addr4 [4]byte
-		addr6 [16]byte
-		ip    *net.IPAddr
+		addr4   [4]byte
+		addr6   [16]byte
+		tcpAddr *net.TCPAddr
+		udpAddr *net.UDPAddr
 	)
 
 	if proto == "tcp" || proto == "tcp4" || proto == "tcp6" {
-		tmpIP, err := net.ResolveTCPAddr(proto, addr)
+		tcpAddr, err = net.ResolveTCPAddr(proto, addr)
 		if err != nil {
 			return nil, -1, err
 		}
-		ip = tmpIP.(*net.IPAddr)
 	} else {
-		tmpIP, err := net.ResolveUDPAddr(proto, addr)
+		udpAddr, err = net.ResolveUDPAddr(proto, addr)
 		if err != nil {
 			return nil, -1, err
 		}
-		ip = tmpIP.(*net.IPAddr)
 	}
 
 	switch proto[len(proto)-1] {
 	default:
 		return nil, -1, errors.New(unsupportedProtoError)
-	case tcp4:
-		if ip.IP != nil {
-			copy(addr4[:], ip.IP[12:16]) // copy last 4 bytes of slice to array
+	case "tcp":
+	case "tcp4":
+		if tcpAddr.IP != nil {
+			copy(addr4[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
 		}
-		return &syscall.SockaddrInet4{Port: ip.Port, Addr: addr4}, syscall.AF_INET, nil
-	case tcp6:
-		if ip.IP != nil {
-			copy(addr6[:], ip.IP) // copy all bytes of slice to array
+		return &syscall.SockaddrInet4{Port: tcpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
+	case "tcp6":
+		if tcpAddr.IP != nil {
+			copy(addr6[:], tcpAddr.IP) // copy all bytes of slice to array
 		}
-		return &syscall.SockaddrInet6{Port: ip.Port, Addr: addr6}, syscall.AF_INET6, nil
+		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
+	case "udp":
+	case "udp4":
+		if tcpAddr.IP != nil {
+			copy(addr4[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
+		}
+		return &syscall.SockaddrInet4{Port: tcpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
+	case "udp6":
+		if tcpAddr.IP != nil {
+			copy(addr6[:], tcpAddr.IP) // copy all bytes of slice to array
+		}
+		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
 	}
 }
 
