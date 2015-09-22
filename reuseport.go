@@ -32,15 +32,17 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 	)
 
 	if proto == "tcp" || proto == "tcp4" || proto == "tcp6" {
-		ip, err = net.ResolveTCPAddr(proto, addr).(*net.IPAddr)
+		tmpIP, err := net.ResolveTCPAddr(proto, addr)
 		if err != nil {
 			return nil, -1, err
 		}
+		ip = tmpIP.(*net.IPAddr)
 	} else {
-		ip, err = net.ResolveUDPAddr(proto, addr).(*net.IPAddr)
+		tmpIP, err := net.ResolveUDPAddr(proto, addr)
 		if err != nil {
 			return nil, -1, err
 		}
+		ip = tmpIP.(*net.IPAddr)
 	}
 
 	switch proto[len(proto)-1] {
