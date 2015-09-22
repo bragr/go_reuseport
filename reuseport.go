@@ -1,4 +1,5 @@
 // Copyright (C) 2013 Max Riveiro
+// Copyright (C) 2015 Grant A. Brady
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -27,12 +28,19 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 	var (
 		addr4 [4]byte
 		addr6 [16]byte
-		ip    *net.TCPAddr
+		ip    *net.IPAddr
 	)
 
-	ip, err = net.ResolveTCPAddr(proto, addr)
-	if err != nil {
-		return nil, -1, err
+	if proto == "tcp" || proto == "tcp4" || proto == "tcp6" {
+		ip, err = net.ResolveTCPAddr(proto, addr)
+		if err != nil {
+			return nil, -1, err
+		}
+	} else {
+		ip, err = net.ResolveUDPAddr(proto, addr)
+		if err != nil {
+			return nil, -1, err
+		}
 	}
 
 	switch proto[len(proto)-1] {
@@ -63,8 +71,14 @@ func NewReusablePortListener(proto, addr string) (l net.Listener, err error) {
 		return nil, err
 	}
 
-	if fd, err = syscall.Socket(soType, syscall.SOCK_STREAM, syscall.IPPROTO_TCP); err != nil {
-		return nil, err
+	if proto == "tcp" || proto == "tcp4" || proto == "tcp6" {
+		if fd, err = syscall.Socket(soType, syscall.SOCK_STREAM, syscall.IPPROTO_TCP); err != nil {
+			return nil, err
+		}
+	} else {
+		if fd, err = syscall.Socket(soType, syscall.SOCK_STREAM, syscall.IPPROTO_UDP); err != nil {
+			return nil, err
+		}
 	}
 
 	if err = syscall.SetsockoptInt(fd, syscall.SOL_SOCKET, reusePort, 1); err != nil {
