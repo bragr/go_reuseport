@@ -42,7 +42,7 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 		}
 	}
 
-	switch proto[len(proto)-1] {
+	switch proto {
 	default:
 		return nil, -1, errors.New(unsupportedProtoError)
 	case "tcp":
