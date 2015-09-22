@@ -45,29 +45,28 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 	switch proto {
 	default:
 		return nil, -1, errors.New(unsupportedProtoError)
-	case "tcp":
 	case "tcp4":
 		if tcpAddr.IP != nil {
 			copy(addr4[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
 		}
 		return &syscall.SockaddrInet4{Port: tcpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
-	case "tcp6":
+	case "tcp", "tcp6":
 		if tcpAddr.IP != nil {
 			copy(addr6[:], tcpAddr.IP) // copy all bytes of slice to array
 		}
 		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
-	case "udp":
 	case "udp4":
 		if tcpAddr.IP != nil {
 			copy(addr4[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
 		}
 		return &syscall.SockaddrInet4{Port: tcpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
-	case "udp6":
+	case "udp", "udp6":
 		if tcpAddr.IP != nil {
 			copy(addr6[:], tcpAddr.IP) // copy all bytes of slice to array
 		}
 		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
 	}
+	return nil, -1, errors.New(unsupportedProtoError)
 }
 
 // NewReusablePortListener returns net.FileListener that created from a file discriptor for a socket with SO_REUSEPORT option.
