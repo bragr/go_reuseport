@@ -56,15 +56,15 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 		}
 		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
 	case "udp4":
-		if tcpAddr.IP != nil {
-			copy(addr4[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
+		if udpAddr.IP != nil {
+			copy(addr4[:], udpAddr.IP[12:16]) // copy last 4 bytes of slice to array
 		}
-		return &syscall.SockaddrInet4{Port: tcpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
+		return &syscall.SockaddrInet4{Port: udpAddr.Port, Addr: addr4}, syscall.AF_INET, nil
 	case "udp", "udp6":
-		if tcpAddr.IP != nil {
-			copy(addr6[:], tcpAddr.IP) // copy all bytes of slice to array
+		if udpAddr.IP != nil {
+			copy(addr6[:], udpAddr.IP) // copy all bytes of slice to array
 		}
-		return &syscall.SockaddrInet6{Port: tcpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
+		return &syscall.SockaddrInet6{Port: udpAddr.Port, Addr: addr6}, syscall.AF_INET6, nil
 	}
 	return nil, -1, errors.New(unsupportedProtoError)
 }
