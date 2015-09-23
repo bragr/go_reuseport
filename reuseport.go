@@ -123,6 +123,7 @@ func NewReusableTCPListener(proto, addr string) (l *net.TCPListener, err error) 
 		return nil, err
 	}
 
+	l = tmpList.(*net.TCPListener)
 	return l, err
 }
 
@@ -141,5 +142,6 @@ func NewReusableUDPConn(proto, addr string) (c *net.UDPConn, err error) {
 		return nil, err
 	}
 
+	c = tmpConn.(*net.UDPConn)
 	return c, err
 }
