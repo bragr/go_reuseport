@@ -108,13 +108,14 @@ func newSocket(proto, addr string) (file *os.File, err error) {
 	return file, err
 }
 
-func NewReusableTCPListener(proto, addr string) (l net.TCPListener, err error) {
+func NewReusableTCPListener(proto, addr string) (l *net.TCPListener, err error) {
 	var file *os.File
+	var tmpList net.Listener
 	if file, err = newSocket(proto, addr); err != nil {
 		return nil, err
 	}
 
-	if l, err = net.FileListener(file); err != nil {
+	if tmpList, err = net.FileListener(file); err != nil {
 		return nil, err
 	}
 
@@ -125,13 +126,14 @@ func NewReusableTCPListener(proto, addr string) (l net.TCPListener, err error) {
 	return l, err
 }
 
-func NewReusableUDPConn(proto, addr string) (c net.UDPConn, err error) {
+func NewReusableUDPConn(proto, addr string) (c *net.UDPConn, err error) {
 	var file *os.File
+	var tmpConn net.Conn
 	if file, err = newSocket(proto, addr); err != nil {
 		return nil, err
 	}
 
-	if c, err = net.FileConn(file); err != nil {
+	if tmpConn, err = net.FileConn(file); err != nil {
 		return nil, err
 	}
 
