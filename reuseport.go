@@ -70,10 +70,9 @@ func getSockaddr(proto, addr string) (sa syscall.Sockaddr, soType int, err error
 }
 
 // NewReusablePortListener returns net.FileListener that created from a file discriptor for a socket with SO_REUSEPORT option.
-func newSocket(proto, addr string) (fd *os.File, err error) {
+func newSocket(proto, addr string) (file *os.File, err error) {
 	var (
 		soType, fd int
-		file       *os.File
 		sockaddr   syscall.Sockaddr
 	)
 
@@ -109,7 +108,7 @@ func newSocket(proto, addr string) (fd *os.File, err error) {
 	return file, err
 }
 
-func NewReusableTCPListener(proto, addr string) (l *net.TCPListener, err error) {
+func NewReusableTCPListener(proto, addr string) (l net.TCPListener, err error) {
 	var file *os.File
 	if file, err = newSocket(proto, addr); err != nil {
 		return nil, err
@@ -126,7 +125,7 @@ func NewReusableTCPListener(proto, addr string) (l *net.TCPListener, err error) 
 	return l, err
 }
 
-func NewReusableUDPConn(proto, addr string) (c *net.UDPConn, err error) {
+func NewReusableUDPConn(proto, addr string) (c net.UDPConn, err error) {
 	var file *os.File
 	if file, err = newSocket(proto, addr); err != nil {
 		return nil, err
