@@ -85,7 +85,7 @@ func newSocket(proto, addr string) (file *os.File, err error) {
 			return nil, err
 		}
 	} else {
-		if fd, err = syscall.Socket(soType, syscall.SOCK_STREAM, syscall.IPPROTO_UDP); err != nil {
+		if fd, err = syscall.Socket(soType, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP); err != nil {
 			return nil, err
 		}
 	}
@@ -98,9 +98,11 @@ func newSocket(proto, addr string) (file *os.File, err error) {
 		return nil, err
 	}
 
-	// Set backlog size to the maximum
-	if err = syscall.Listen(fd, syscall.SOMAXCONN); err != nil {
-		return nil, err
+	if proto == "tcp" || proto == "tcp4" || proto == "tcp6" {
+		// Set backlog size to the maximum
+		if err = syscall.Listen(fd, syscall.SOMAXCONN); err != nil {
+			return nil, err
+		}
 	}
 
 	// File Name get be nil
