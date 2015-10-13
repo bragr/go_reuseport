@@ -1,49 +1,21 @@
 # GO_REUSEPORT
 
-[![Build Status](https://travis-ci.org/kavu/go_reuseport.png?branch=master)](https://travis-ci.org/kavu/go_reuseport)
-[![GoDoc](https://godoc.org/github.com/kavu/go_reuseport?status.png)](https://godoc.org/github.com/kavu/go_reuseport)
+**GO_REUSEPORT** is a little package to create `net.TCPListener` and `net.UDPConn` objects that support the [SO_REUSEPORT](http://lwn.net/Articles/542629/) socket option. This allows multiple daemons to listen on the same port, which opens some interesting possibilities.
 
-**GO_REUSEPORT** is a little expirement to create a `net.Listener` that supports [SO_REUSEPORT](http://lwn.net/Articles/542629/) socket option.
+The golang net package does not support setting socket options so this is not possible by default. This package works by using system calls to manually create the socket and set the desired options. The file descriptor that this process returns can then be turned into `net.FileListener` and `net.FileConn` objects using `net.FileListener` and `net.FileConn`, respectively.
 
-For now, Darwin and Linux (from 3.9) systems are supported. I'll be pleased if you'll test other systems and tell me the results.
- documentation on [godoc.org](http://godoc.org/github.com/kavu/go_reuseport "go_reuseport documentation").
 
-## Example ##
+## TODO
 
-```go
-package main
+* Add Example
 
-import (
-  "fmt"
-  "html"
-  "net/http"
-  "os"
-  "runtime"
-  "github.com/kavu/go_reuseport"
-)
+* Add More documentation
 
-func main() {
-  runtime.GOMAXPROCS(runtime.NumCPU())
+* Update test code to handle new functionality
 
-  listener, err := reuseport.NewReusablePortListener("tcp4", "localhost:8881")
-  if err != nil {
-    panic(err)
-  }
-  defer listener.Close()
-
-  server := &http.Server{}
-  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Println(os.Getgid())
-    fmt.Fprintf(w, "Hello, %q\n", html.EscapeString(r.URL.Path))
-  })
-
-  panic(server.Serve(listener))
-}
-```
-
-Now you can run several instances of this tiny server without `Address already in use` errors.
+* Test on other platforms other than Linux
 
 ## Thanks
 
+Forked from [kavu/go_reuseport](https://github.com/kavu/go_reuseport)
 Inspired by [Artur Siekielski](https://github.com/aartur) [post](http://freeprogrammersblog.vhex.net/post/linux-39-introdued-new-way-of-writing-socket-servers/2) about `SO_REUSEPORT`.
-
