@@ -18,4 +18,5 @@ The golang net package does not support setting socket options so this is not po
 ## Thanks
 
 Forked from [kavu/go_reuseport](https://github.com/kavu/go_reuseport)
+
 Inspired by [Artur Siekielski](https://github.com/aartur) [post](http://freeprogrammersblog.vhex.net/post/linux-39-introdued-new-way-of-writing-socket-servers/2) about `SO_REUSEPORT`.
